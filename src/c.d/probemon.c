@@ -160,6 +160,9 @@ void parse_args(int argc, char *argv[], char **iface, uint8_t *channel, char **m
 
 void change_channel(const char *iface, uint8_t channel)
 {
+  // don't do anything for channel 0
+  if (channel == 0) return;
+
   // look up for iw in system
   char *paths[] = {"/sbin/iw", "/bin/iw", "/usr/sbin/iw", "/usr/bin/iw"};
   char *iw;

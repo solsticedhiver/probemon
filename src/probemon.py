@@ -13,6 +13,7 @@ import signal
 import struct
 import threading
 import queue
+import os.path
 from yaml import load as yaml_load
 try:
     from yaml import CLoader as Loader
@@ -274,14 +275,18 @@ def init_db(conn, c):
 def check_event(packet):
     return event.is_set()
 
-def main():
-    # sniff on specified channel
-    cmd = f'iw dev {args.interface} set channel {args.channel}'
+def switch_channel(interface, channel):
+    cmd = f'iw dev {interface} set channel {channel}'
     try:
         subprocess.check_call(cmd.split(' '))
     except subprocess.CalledProcessError as c:
-        print(f'Error: failed to switch to channel {args.channel} for interface {args.interface}', file=sys.stderr)
+        print(f'Error: failed to switch to channel {channel} for interface {interface}', file=sys.stderr)
         sys.exit(1)
+
+def main():
+    if args.channel != 0:
+        # sniff on specified channel
+        switch_channel(args.interface, args.channel)
 
     update_vdb = False
     global vendor_db
