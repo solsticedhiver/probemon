@@ -220,7 +220,7 @@ int main(void)
   }
   free(ouidb);
 
-  printf("Memory used by ouidb: %lu\n", mu);
+  printf("Memory used by ouidb: %u\n", mu);
 
   return 0;
 }

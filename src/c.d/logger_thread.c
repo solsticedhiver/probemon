@@ -72,8 +72,12 @@ void *process_queue(void *args)
 
     // look for vendor string in manuf
     int indx = lookup_oui(pr->mac, ouidb, ouidb_size);
-    if (indx >= 0 && ouidb[indx].long_oui) {
-      pr->vendor = strdup(ouidb[indx].long_oui);
+    if (indx >= 0) {
+      if (ouidb[indx].long_oui) {
+        pr->vendor = strdup(ouidb[indx].long_oui);
+      } else {
+        pr->vendor = strdup(ouidb[indx].short_oui);
+      }
     } else {
       pr->vendor = strdup("UNKNOWN");
     }
