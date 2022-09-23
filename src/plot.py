@@ -29,9 +29,13 @@ COLORS = ['tab:blue', 'tab:orange', 'tab:green', 'tab:purple', 'tab:brown', 'tab
 REFRESH_TIME = 60 # in seconds
 
 # read config variable from config.yaml file
-with open('config.yaml', 'r') as f:
-    cfg_doc = f.read()
-config = yaml_load(cfg_doc, Loader=Loader)
+try:
+    with open('config.yaml', 'r') as f:
+        cfg_doc = f.read()
+    config = yaml_load(cfg_doc, Loader=Loader)
+except FileNotFoundError as e:
+    print('Warning: config.yaml not found, skipping', file=sys.stderr)
+    config = {'ignored': tuple(), 'knownmac': tuple(), 'merged': tuple(), 'height': 1366, 'width': 768, 'dpi': 100}
 config['merged'] = (m[:8] for m in config['merged'])
 
 # draws a rectangle as custom legend handler
