@@ -26,7 +26,7 @@ try:
     config = yaml_load(cfg_doc, Loader=Loader)
 except FileNotFoundError as e:
     print('Warning: config.yaml not found, skipping', file=sys.stderr)
-    config = {'ignored': tuple()}
+    config = {'ignored': tuple(), 'knownmac': tuple(), 'merged': tuple()}
 
 def is_local_bit_set(mac):
     byte = mac.split(':')
@@ -51,7 +51,7 @@ def parse_ts(ts):
     except  ValueError:
         try:
             date = time.strptime(ts, '%Y-%m-%d')
-            date = time.strptime('%sT12:00' % ts, '%Y-%m-%dT%H:%M')
+            date = time.strptime(f'{ts}T12:00', '%Y-%m-%dT%H:%M')
         except ValueError:
             print("Error: can't parse date timestamp", file=sys.stderr)
             sys.exit(-1)
@@ -70,19 +70,19 @@ def build_sql_query(after, before, macs, rssi, zero, day):
 
     def add_arg(clause, op, new_arg):
         if clause == '':
-            clause = '%s' % new_arg
+            clause = f'{new_arg}'
         else:
-            clause = '%s %s %s' % (clause, op, new_arg)
+            clause = f'{clause} {op} {new_arg}'
         return clause
 
     if macs:
         for mac in macs:
             if len(mac) != 17:
-                mac = '%s%%' % mac
+                mac = f'{mac}%'
             sql_where_clause = add_arg(sql_where_clause, 'or', 'mac.address like ?')
             sql_args.append(mac)
         if len(macs) > 1:
-            sql_where_clause = '(%s)' % sql_where_clause
+            sql_where_clause = f'({sql_where_clause})'
     if rssi:
         sql_where_clause = add_arg(sql_where_clause, 'and', 'rssi>?')
         sql_args.append(rssi)
@@ -103,10 +103,14 @@ def build_sql_query(after, before, macs, rssi, zero, day):
 
     if len(config['ignored']) > 0:
         arg_list = ','.join(['?']*len(config['ignored']))
-        sql_where_clause = add_arg(sql_where_clause, 'and', 'mac.address not in (%s)' % (arg_list,))
+        sql_where_clause = add_arg(sql_where_clause, 'and', f'mac.address not in ({arg_list})')
         sql_args.extend(config['ignored'])
 
-    sql = '%s where %s %s' % (sql_head, sql_where_clause, sql_tail)
+    if sql_where_clause != '':
+        sql = f'{sql_head} where {sql_where_clause} {sql_tail}'
+    else:
+        sql = f'{sql_head} {sql_tail}'
+
     return sql, sql_args
 
 def main():
@@ -253,7 +257,7 @@ def main():
     try:
         c.execute(sql, sql_args)
     except sqlite3.OperationalError as e:
-        print('Error: {e}', file=sys.stderr)
+        print(f'Error: {e}', file=sys.stderr)
         sys.exit(-1)
 
     if args.log:
@@ -261,7 +265,7 @@ def main():
         for t, m, mc, ssid, rssi in c.fetchall():
             t = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(t))
             if is_local_bit_set(m):
-                m = '%s (LAA)' % m
+                m = f'{m} (LAA)'
             # strip mac vendor string to MAX_VENDOR_LENGTH chars, left padded with space
             if len(mc) > MAX_VENDOR_LENGTH:
                 mc = mc[:MAX_VENDOR_LENGTH-3]+ '...'
