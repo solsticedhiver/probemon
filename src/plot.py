@@ -36,7 +36,6 @@ try:
 except FileNotFoundError as e:
     print('Warning: config.yaml not found, skipping', file=sys.stderr)
     config = {'ignored': tuple(), 'knownmac': tuple(), 'merged': tuple(), 'height': 1366, 'width': 768, 'dpi': 100}
-config['merged'] = (m[:8] for m in config['merged'])
 
 # draws a rectangle as custom legend handler
 class MyLine2DHandler(object):
@@ -188,7 +187,7 @@ def get_data(args):
             times.append(sorted(t))
 
     # merge all same vendor mac into one plot for a virtual MAC called 'OUI'
-    for mv in config['merged']:
+    for mv in args.merged:
         indx = [i for i,m in enumerate(macs) if m[:8] == mv]
         if len(indx) > 0:
             t = []
@@ -339,6 +338,7 @@ def main():
     parser.add_argument('-l', '--legend', action='store_true', default=False, help='add a legend')
     parser.add_argument('--label', action='store_true', default=False, help='add a mac label for each plot')
     parser.add_argument('-k', '--knownmac', action='append', help='known mac to highlight in red')
+    parser.add_argument('-g', '--merged', action='append', help='OUI to merge')
     parser.add_argument('-M', '--min', type=int, default=3, help='minimum number of probe requests to consider')
     parser.add_argument('-m', '--mac', action='append', help='only display that mac')
     parser.add_argument('-p', '--privacy', action='store_true', default=False, help='merge LAA MAC address')
@@ -381,6 +381,9 @@ def main():
 
     if args.knownmac is None:
         args.knownmac = config['knownmac']
+    if args.merged is None:
+        args.merged = config['merged']
+    args.merged = (m[:8] for m in args.merged)
 
     if args.pcap and not os.path.exists(args.pcap):
         print(f'Error: pcap file not found {args.pcap}', file=sys.stderr)
