@@ -316,7 +316,7 @@ def create_app():
         for t, mac, vs, ssid, rssi in cur.fetchall():
             #t = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(t))
             d = (int(t*1000-starting_ts), int(rssi), ssid)
-            if is_local_bit_set(mac):
+            if is_local_bit_set(mac) and mac not in config['knownmac'] and mac[:8] not in config['merged']:
                 mac = 'LAA'
             if mac not in ts.keys():
                 ts[mac] = [d]

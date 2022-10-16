@@ -6,7 +6,7 @@ ignored: # list of your devices for example
   - yy:yy:yy:yy:yy:yy
 
 merged: # list of partial mac addresses for devices using randomization
-  - 'zz:zz:zz:*'
+  - 'da:a1:19:*' # well known LAA mac for android devices
 
 height: 1366 # in pixels
 width: 768
