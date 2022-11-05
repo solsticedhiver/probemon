@@ -385,10 +385,12 @@ def main():
         args.merged = config['merged']
     args.merged = (m[:8] for m in args.merged)
 
-    if args.pcap and not os.path.exists(args.pcap):
-        print(f'Error: pcap file not found {args.pcap}', file=sys.stderr)
-        sys.exit(-1)
-    if not os.path.exists(args.db):
+    if args.pcap:
+        args.db = None
+        if not os.path.exists(args.pcap):
+            print(f'Error: pcap file not found {args.pcap}', file=sys.stderr)
+            sys.exit(-1)
+    if args.db and not os.path.exists(args.db):
         print(f'Error: file not found {args.db}', file=sys.stderr)
         sys.exit(-1)
 
