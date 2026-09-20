@@ -138,8 +138,7 @@ char *probereq_to_str(probereq_t pr)
     // base64 encode the ssid
     size_t length;
     char * b64tmp = base64_encode((unsigned char *)tmp, pr.ssid_len, &length);
-    strcpy(tmp, "b64_");
-    strncat(tmp, b64tmp, length);
+    snprint(tmp, 1024, "b64_%s", b64tmp);
     free(b64tmp);
   }
   // cut or pad ssid string

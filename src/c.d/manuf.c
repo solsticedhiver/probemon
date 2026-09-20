@@ -83,11 +83,11 @@ int parse_mac_field(char *mac, manuf_t *m)
   free(tmp);
   if (strlen(mr) == 6) {
     char *min = malloc(13 * sizeof(char));
-    strncpy(min, mr, 6);
+    strcpy(min, mr);
     strcat(min, "000000");
     m->min = strtoll(min, NULL, 16);
     char *max = malloc(13 * sizeof(char));
-    strncpy(max, mr, 6);
+    strcpy(max, mr);
     strcat(max, "ffffff");
     m->max = strtoll(max, NULL, 16);
     free(min);
