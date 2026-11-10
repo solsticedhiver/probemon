@@ -58,7 +58,7 @@ class InvalidUsage(Exception):
 def create_app():
     app = Flask(__name__)
 
-    cache = Cache(config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': TMPDIR})
+    cache = Cache(config={'CACHE_TYPE': 'FileSystemCache', 'CACHE_DIR': TMPDIR})
     cache.init_app(app)
 
     def get_db():
